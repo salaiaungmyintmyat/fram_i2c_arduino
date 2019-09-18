@@ -15,8 +15,10 @@
     **Caution - If Mega board is used, don't forget to uncomment and comment   **
     **          ports at i2cMaster_Init() in "Master_TWI.h" header.            **
     *****************************************************************************
+    !!UPDATED: Additional function that terminate I2C communication protocol.
+               "i2cMaster_Disable()"
 
-    Date: 17 Sep 2019
+    Date: 18 Sep 2019
 
     Written By
     Salai Aung Myint Myat
@@ -46,12 +48,15 @@ void setup() {
   Serial.println(data);
   Serial.println('e');
   //  delay(1000);
+  i2cMaster_Disable();      // Optional: I2C communication deactivate
 
   //*******READ/WRITE Simutaneously*******/
+  i2cMaster_Init();
   FRAM_Write(0x04, 'R');
   FRAM_Read_Array(0x04, 7, data);
   Serial.println(data);
   Serial.println("end");
+  i2cMaster_Disable();
 }
 
 void loop() {

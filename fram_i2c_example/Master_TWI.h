@@ -67,14 +67,33 @@ void i2cMaster_Init(void)
   // Pull-up to SCL and SDA bus lines
   // Otherwise, use 1 kOhm resistor
   // Comment this if ATmega2560 (Mega board) is used
-  PORTC |= (1 << PC4) | (1 << PC5);
+  DDRC &= ~((1 << DDC4) | (1 << DDC5));       // Set as input direction
+  PORTC |= (1 << PC4) | (1 << PC5);           // Set pull-up resistor
 
   // Uncomment this if ATmega2560 (Mega board) is used
-  //  PORTD |= (1 << PD1) | (1 << PD0);
+  //  DDRD &= ~((1 << DDD1) | (1 << DDD0));   // Set as input direction
+  //  PORTD |= (1 << PD1) | (1 << PD0);       // Set pull-up resistor
 
   TWBR = TWBR_BAUD;   // Set baudrate by calculation from Datasheet
   TWCR = (1 << TWEN); // TWI enabled
   TWSR = 0;           // Set prescaler to 1
+}
+
+
+// Master device disable
+void i2cMaster_Disable(void)
+{
+  // Pull-down to SCL and SDA bus lines
+  // Comment this if ATmega2560 (Mega board) is used
+  DDRC |= (1 << DDC4) | (1 << DDC5);         // Set as output direction
+  PORTC &= ~((1 << PC4) | (1 << PC5));       // Set low logic
+
+  // Uncomment this if ATmega2560 (Mega board) is used
+  //  DDRD |= (1 << DDD1) | (1 << DDD0);     // Set as input direction
+  //  PORTD &= ~((1 << PD1) | (1 << PD0));   // Set low logic
+
+  TWCR = 0;            // Clear all bits in control register
+  TWBR = 0;            // Clear also buadrate
 }
 
 /*
