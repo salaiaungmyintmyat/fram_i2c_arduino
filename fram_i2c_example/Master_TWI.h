@@ -57,12 +57,17 @@ volatile byte MasterTX_RX_Error = 0;
 #define I2C_Shift_Sec     10        // 10 milli seconds for time shift waiting
 unsigned long Current_Sec = 0;      // Manipulate current second with reference second
 
+//**************** Slave Adr Convertion ******************//
+#define RW_BIT            0         // Bit 0 at slave address for R/W operation
+uint8_t SLA_WR = 0;                 // Write address
+uint8_t SLA_RD = 0;                 // Read address
+
 // Error detection functions
 void MTX_RX_ERROR(void);
 
 
 // Master device initialization
-void i2cMaster_Init(void)
+void i2cMaster_Init(uint8_t SLA)
 {
   // Pull-up to SCL and SDA bus lines
   // Otherwise, use 1 kOhm resistor
@@ -77,6 +82,17 @@ void i2cMaster_Init(void)
   TWBR = TWBR_BAUD;   // Set baudrate by calculation from Datasheet
   TWCR = (1 << TWEN); // TWI enabled
   TWSR = 0;           // Set prescaler to 1
+
+  // Slave address convertion
+  uint8_t SlaveAdr = (SLA << 1);        // Convert slave address (7 to 8 bits)
+  SlaveAdr &= ~(1 << RW_BIT);           // 0 - Write operation enabled
+  SLA_WR = SlaveAdr;
+  SlaveAdr |= (1 << RW_BIT);            // 1 - Read operation enabled
+  SLA_RD = SlaveAdr;
+
+  //  Serial.println(SLA, HEX);
+  //  Serial.println(SLA_WR, HEX);
+  //  Serial.println(SLA_RD, HEX);
 }
 
 
@@ -94,6 +110,9 @@ void i2cMaster_Disable(void)
 
   TWCR = 0;            // Clear all bits in control register
   TWBR = 0;            // Clear also buadrate
+  
+  SLA_WR = 0;          // Clear write address
+  SLA_RD = 0;          // Clear read address
 }
 
 /*
